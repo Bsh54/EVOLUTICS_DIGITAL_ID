@@ -29,7 +29,9 @@
       "Bash(pwd && ls -la *.sql)",
       "Bash(cd ../../inji-certify-master/docker-compose/docker-compose-injistack && ls -la *.sql)",
       "Bash(curl -s http://localhost:8090/v1/certify/actuator/health | head -20)",
-      "Bash(docker restart:*)"
+      "Bash(docker restart:*)",
+      "Bash(sleep 25 && curl -s http://localhost:8090/v1/certify/.well-known/openid-credential-issuer | grep -o '\"CottonPaySaleReceipt\"')",
+      "Bash(curl -s http://localhost:8090/v1/certify/.well-known/openid-credential-issuer | grep -o '\"CottonPaySaleReceipt\"')"
     ]
   }
 }

@@ -1,7 +1,7 @@
 -- Configuration du Verifiable Credential pour les reçus de vente de coton CottonPay
 -- Ce credential sera émis après chaque vente confirmée
 
-\c inji_certify postgres
+\c mosip_esignet postgres
 
 -- Insérer la configuration du credential CottonPaySaleReceipt
 INSERT INTO certify.credential_config (
