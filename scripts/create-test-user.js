@@ -19,7 +19,7 @@ async function createTestUser() {
   const testUser = {
     requestTime: new Date().toISOString(),
     request: {
-      individualId: 'TEST123456',
+      individualId: '1234567890123456',
       pin: '111111',
       email: 'koffi.mensah@example.com',
       phone: '+22997123456',
@@ -27,11 +27,20 @@ async function createTestUser() {
         { language: 'eng', value: 'Koffi Mensah' },
         { language: 'fra', value: 'Koffi Mensah' }
       ],
+      givenName: [
+        { language: 'eng', value: 'Koffi' },
+        { language: 'fra', value: 'Koffi' }
+      ],
+      familyName: [
+        { language: 'eng', value: 'Mensah' },
+        { language: 'fra', value: 'Mensah' }
+      ],
       dateOfBirth: '1985/05/15',
       gender: [
         { language: 'eng', value: 'Male' },
         { language: 'fra', value: 'Masculin' }
       ],
+      encodedPhoto: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
       streetAddress: [
         { language: 'eng', value: 'Banikoara' },
         { language: 'fra', value: 'Banikoara' }
