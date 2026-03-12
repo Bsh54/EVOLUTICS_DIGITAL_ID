@@ -44,14 +44,8 @@ async function createTestUser() {
         { language: 'eng', value: 'Alibori' },
         { language: 'fra', value: 'Alibori' }
       ],
-      postalCode: [
-        { language: 'eng', value: '00229' },
-        { language: 'fra', value: '00229' }
-      ],
-      country: [
-        { language: 'eng', value: 'BEN' },
-        { language: 'fra', value: 'BEN' }
-      ]
+      postalCode: '00229',
+      country: 'BEN'
     }
   };
 
