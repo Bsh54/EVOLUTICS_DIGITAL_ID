@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Keys (IMPORTANT: Never commit private keys!)
+keys/private-key.pem
+keys/*.pem
+*.key
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build
+dist/
+build/
+frontend/build/
+
+# Test
+coverage/
+.nyc_output/
+
+# Temporary
+tmp/
+temp/
