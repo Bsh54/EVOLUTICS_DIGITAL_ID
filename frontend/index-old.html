@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CottonPay ID - Identité Numérique pour Agriculteurs</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 40px;
+            line-height: 1.5;
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            font-size: 18px;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .features {
+            text-align: left;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid #eee;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .feature-icon {
+            font-size: 24px;
+            margin-right: 12px;
+        }
+
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #999;
+            font-size: 14px;
+        }
+
+        .loading {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .error.active {
+            display: block;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .btn {
+                font-size: 16px;
+                padding: 14px 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🌾</div>
+        <h1>CottonPay ID</h1>
+        <p class="subtitle">
+            Votre identité nationale devient votre passerelle de paiement sécurisée
+        </p>
+
+        <div id="error" class="error"></div>
+
+        <div class="button-group">
+            <button id="loginBtn" class="btn btn-primary" onclick="handleLogin()">
+                🔐 Se connecter avec eSignet
+            </button>
+            <button id="registerBtn" class="btn btn-secondary" onclick="window.location.href='/register.html'">
+                📝 Créer un compte
+            </button>
+        </div>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 10px; color: #667eea;">Redirection vers eSignet...</p>
+        </div>
+
+        <div class="features">
+            <div class="feature">
+                <span class="feature-icon">✅</span>
+                <span>Authentification sécurisée par OTP</span>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">💰</span>
+                <span>Paiements directs sans intermédiaire</span>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">📊</span>
+                <span>Historique de crédit vérifiable</span>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">🔒</span>
+                <span>Données protégées et chiffrées</span>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Propulsé par eSignet (MOSIP)</p>
+            <p style="margin-top: 5px;">Team EVOLUTICS - UAC 2026</p>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3002';
+
+        async function handleLogin() {
+            try {
+                showLoading(true);
+                hideError();
+
+                const response = await fetch(`${API_URL}/auth/login`, {
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erreur lors de l\'initialisation de la connexion');
+                }
+
+                const data = await response.json();
+
+                // Rediriger vers eSignet
+                window.location.href = data.authUrl;
+
+            } catch (error) {
+                console.error('Login error:', error);
+                showError('Erreur de connexion. Veuillez réessayer.');
+                showLoading(false);
+            }
+        }
+
+        async function handleRegister() {
+            try {
+                showLoading(true);
+                hideError();
+
+                const response = await fetch(`${API_URL}/auth/register`, {
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erreur lors de l\'initialisation de l\'inscription');
+                }
+
+                const data = await response.json();
+
+                // Rediriger vers eSignet
+                window.location.href = data.authUrl;
+
+            } catch (error) {
+                console.error('Register error:', error);
+                showError('Erreur d\'inscription. Veuillez réessayer.');
+                showLoading(false);
+            }
+        }
+
+        function showLoading(show) {
+            const loading = document.getElementById('loading');
+            const loginBtn = document.getElementById('loginBtn');
+            const registerBtn = document.getElementById('registerBtn');
+
+            if (show) {
+                loading.classList.add('active');
+                loginBtn.disabled = true;
+                registerBtn.disabled = true;
+            } else {
+                loading.classList.remove('active');
+                loginBtn.disabled = false;
+                registerBtn.disabled = false;
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('active');
+        }
+
+        function hideError() {
+            const errorDiv = document.getElementById('error');
+            errorDiv.classList.remove('active');
+        }
+
+        // Vérifier les paramètres d'erreur dans l'URL
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const error = urlParams.get('error');
+            const errorDescription = urlParams.get('error_description');
+
+            if (error) {
+                showError(errorDescription || 'Une erreur est survenue lors de l\'authentification');
+            }
+        });
+    </script>
+</body>
+</html>

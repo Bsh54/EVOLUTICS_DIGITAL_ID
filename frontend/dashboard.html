@@ -4,23 +4,72 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tableau de bord - CottonPay ID</title>
+
+    <!-- Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
+        :root {
+            --primary: #F59E0B;
+            --secondary: #FBBF24;
+            --cta: #8B5CF6;
+            --background: #0F172A;
+            --text: #F8FAFC;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f5f5;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--background);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 50%, var(--primary) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 50%, var(--cta) 0%, transparent 50%);
+            opacity: 0.15;
+            animation: rotate 30s linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
             padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 10;
         }
 
         .header-content {
@@ -32,53 +81,88 @@
         }
 
         .logo {
-            font-size: 24px;
-            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            color: var(--primary);
         }
 
         .user-info {
             display: flex;
             align-items: center;
             gap: 15px;
+            color: var(--text);
         }
 
         .logout-btn {
-            background: rgba(255,255,255,0.2);
-            border: 1px solid white;
-            color: white;
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #FEE2E2;
             padding: 8px 16px;
             border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.15s ease-out;
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .logout-btn:hover {
-            background: white;
-            color: #667eea;
+            background: rgba(239, 68, 68, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .logout-btn:focus-visible {
+            outline: 3px solid var(--cta);
+            outline-offset: 3px;
+        }
+
+        .logout-icon {
+            width: 16px;
+            height: 16px;
         }
 
         .container {
             max-width: 1200px;
-            margin: 40px auto;
-            padding: 0 20px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 1;
         }
 
         .welcome-card {
-            background: white;
-            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            border-radius: 16px;
             padding: 30px;
             margin-bottom: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
         .welcome-card h1 {
-            color: #333;
+            color: var(--text);
             margin-bottom: 10px;
+            font-size: 28px;
+            font-weight: 700;
         }
 
         .welcome-card p {
-            color: #666;
+            color: rgba(248, 250, 252, 0.85);
             font-size: 16px;
+            line-height: 1.6;
         }
 
         .stats-grid {
@@ -89,53 +173,81 @@
         }
 
         .stat-card {
-            background: white;
-            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            border-radius: 16px;
             padding: 25px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.15s ease-out;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
         }
 
         .stat-icon {
-            font-size: 36px;
-            margin-bottom: 10px;
+            width: 48px;
+            height: 48px;
+            margin-bottom: 15px;
+            color: var(--primary);
         }
 
         .stat-value {
             font-size: 32px;
-            font-weight: bold;
-            color: #667eea;
+            font-weight: 700;
+            color: var(--text);
             margin-bottom: 5px;
         }
 
         .stat-label {
-            color: #666;
+            color: rgba(248, 250, 252, 0.7);
             font-size: 14px;
         }
 
         .section {
-            background: white;
-            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            border-radius: 16px;
             padding: 30px;
             margin-bottom: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
         .section h2 {
-            color: #333;
+            color: var(--text);
             margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 22px;
+            font-weight: 700;
         }
 
         .empty-state {
             text-align: center;
-            padding: 40px;
-            color: #999;
+            padding: 60px 20px;
+            color: rgba(248, 250, 252, 0.7);
         }
 
         .empty-state-icon {
-            font-size: 64px;
-            margin-bottom: 20px;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            color: rgba(248, 250, 252, 0.5);
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .empty-state p:first-of-type {
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 10px;
         }
 
         .loading {
@@ -144,8 +256,8 @@
         }
 
         .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid var(--primary);
             border-radius: 50%;
             width: 40px;
             height: 40px;
@@ -157,15 +269,51 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        .loading p {
+            color: rgba(248, 250, 252, 0.7);
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .welcome-card h1 {
+                font-size: 24px;
+            }
+
+            .container {
+                padding: 30px 15px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="header">
         <div class="header-content">
-            <div class="logo">🌾 CottonPay ID</div>
+            <div class="logo">
+                <svg class="logo-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                </svg>
+                CottonPay ID
+            </div>
             <div class="user-info">
                 <span id="userName">Chargement...</span>
-                <button class="logout-btn" onclick="handleLogout()">Déconnexion</button>
+                <button class="logout-btn" onclick="handleLogout()" aria-label="Se déconnecter">
+                    <svg class="logout-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                    </svg>
+                    Déconnexion
+                </button>
             </div>
         </div>
     </div>
@@ -178,17 +326,26 @@
 
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-icon">💰</div>
+                <svg class="stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
                 <div class="stat-value" id="totalEarnings">0 FCFA</div>
                 <div class="stat-label">Revenus totaux</div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon">📊</div>
+                <svg class="stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
                 <div class="stat-value" id="totalTransactions">0</div>
                 <div class="stat-label">Transactions</div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon">📅</div>
+                <svg class="stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
                 <div class="stat-value" id="lastPayment">-</div>
                 <div class="stat-label">Dernier paiement</div>
             </div>
@@ -198,7 +355,7 @@
             <h2>Transactions récentes</h2>
             <div id="transactions">
                 <div class="loading">
-                    <div class="spinner"></div>
+                    <div class="spinner" role="status" aria-label="Chargement en cours"></div>
                     <p>Chargement des données...</p>
                 </div>
             </div>
@@ -210,7 +367,6 @@
 
         async function loadDashboard() {
             try {
-                // Charger le profil utilisateur
                 const profileResponse = await fetch(`${API_URL}/user/profile`, {
                     credentials: 'include'
                 });
@@ -223,14 +379,12 @@
                 const profileData = await profileResponse.json();
                 document.getElementById('userName').textContent = profileData.user.name || 'Utilisateur';
 
-                // Charger les données du dashboard
                 const dashboardResponse = await fetch(`${API_URL}/user/dashboard`, {
                     credentials: 'include'
                 });
 
                 const dashboardData = await dashboardResponse.json();
 
-                // Mettre à jour les statistiques
                 document.getElementById('totalEarnings').textContent =
                     dashboardData.stats.totalEarnings.toLocaleString() + ' FCFA';
                 document.getElementById('totalTransactions').textContent =
@@ -238,7 +392,6 @@
                 document.getElementById('lastPayment').textContent =
                     dashboardData.stats.lastPayment || '-';
 
-                // Afficher les transactions
                 displayTransactions(dashboardData.recentTransactions);
 
             } catch (error) {
@@ -252,7 +405,10 @@
             if (transactions.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
-                        <div class="empty-state-icon">📭</div>
+                        <svg class="empty-state-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+                        </svg>
                         <p>Aucune transaction pour le moment</p>
                         <p style="margin-top: 10px; font-size: 14px;">
                             Vos paiements apparaîtront ici après votre première vente de coton
@@ -260,8 +416,7 @@
                     </div>
                 `;
             } else {
-                // TODO: Afficher la liste des transactions
-                container.innerHTML = '<p>Transactions à venir...</p>';
+                container.innerHTML = '<p style="color: var(--text);">Transactions à venir...</p>';
             }
         }
 
@@ -278,7 +433,6 @@
             }
         }
 
-        // Charger le dashboard au chargement de la page
         window.addEventListener('DOMContentLoaded', loadDashboard);
     </script>
 </body>
