@@ -100,39 +100,58 @@ Permettre aux 300,000 agriculteurs de coton du Bénin d'accéder à des paiement
 - **Python 3** (pour le serveur frontend)
 - **Git**
 
-### Étape 1: Cloner le projet
+### ⚡ Méthode Rapide (Recommandée)
+
+Utilisez le script de démarrage automatique qui configure tout pour vous :
+
+```bash
+cd CottonPay
+./start-all.sh
+```
+
+Ce script :
+- Démarre tous les services Docker eSignet
+- Installe les dépendances npm si nécessaire
+- Enregistre le client OIDC automatiquement
+- Démarre le backend et le frontend
+- Vérifie la santé de tous les services
+
+Pour arrêter tous les services :
+```bash
+./stop-all.sh
+```
+
+### 📝 Méthode Manuelle (Étape par étape)
+
+#### Étape 1: Cloner le projet
 
 ```bash
 git clone https://github.com/Bsh54/EVOLUTICS_DIGITAL_ID.git
 cd EVOLUTICS_DIGITAL_ID
 ```
 
-### Étape 2: Démarrer eSignet (environnement Docker)
+#### Étape 2: Démarrer eSignet (environnement Docker)
 
 ```bash
 cd esignet-master/docker-compose
 docker compose up -d
 ```
 
+**⚠️ IMPORTANT:** Attendez **30-60 secondes** que tous les services démarrent complètement, notamment l'UI eSignet.
+
 **Vérifier que les services sont actifs:**
 - eSignet UI: http://localhost:3000
-- eSignet API: http://localhost:8088/v1/esignet/swagger-ui.html
-- Mock Identity: http://localhost:8082
+- eSignet API: http://localhost:8088/v1/esignet/actuator/health
+- Mock Identity: http://localhost:8082/v1/mock-identity-system/actuator/health
 
-**Attendre 2-3 minutes** que tous les services soient complètement démarrés.
-
-### Étape 3: Installer les dépendances CottonPay
+#### Étape 3: Installer les dépendances CottonPay
 
 ```bash
 cd ../../CottonPay
 npm install
 ```
 
-### Étape 4: Configurer l'environnement
-
-Le fichier `.env` sera créé automatiquement lors de l'enregistrement du client.
-
-### Étape 5: Enregistrer CottonPay comme Relying Party
+#### Étape 4: Enregistrer CottonPay comme Relying Party
 
 ```bash
 npm run register-client
@@ -144,7 +163,9 @@ Cette commande:
 - Crée le fichier `.env` avec le CLIENT_ID
 - Sauvegarde les clés dans `./keys/`
 
-### Étape 6: Créer un utilisateur test (optionnel)
+**⚠️ IMPORTANT:** Si vous obtenez l'erreur "Client ID is invalid", réexécutez cette commande.
+
+#### Étape 5: Créer un utilisateur test (optionnel)
 
 ```bash
 npm run create-test-user
@@ -157,21 +178,19 @@ npm run create-test-user
 - Email: koffi.mensah@example.com
 - OTP: 111111
 
-### Étape 7: Démarrer l'application
+#### Étape 6: Démarrer l'application
 
 **Terminal 1 - Backend:**
 ```bash
-npm run start:backend
+node backend/server.js
 ```
 
 **Terminal 2 - Frontend:**
 ```bash
-npm run start:frontend
-# ou manuellement:
 cd frontend && python -m http.server 3001
 ```
 
-### Étape 8: Accéder à l'application
+#### Étape 7: Accéder à l'application
 
 Ouvrez votre navigateur: **http://localhost:3001**
 
