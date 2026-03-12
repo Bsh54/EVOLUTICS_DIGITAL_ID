@@ -28,7 +28,10 @@ async function createTestUser() {
         { language: 'fra', value: 'Koffi Mensah' }
       ],
       dateOfBirth: '1985/05/15',
-      gender: 'Male',
+      gender: [
+        { language: 'eng', value: 'Male' },
+        { language: 'fra', value: 'Masculin' }
+      ],
       streetAddress: 'Banikoara',
       locality: 'Alibori',
       region: 'Alibori',
