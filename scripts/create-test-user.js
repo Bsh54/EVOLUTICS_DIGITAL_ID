@@ -32,26 +32,11 @@ async function createTestUser() {
         { language: 'eng', value: 'Male' },
         { language: 'fra', value: 'Masculin' }
       ],
-      streetAddress: [
-        { language: 'eng', value: 'Banikoara' },
-        { language: 'fra', value: 'Banikoara' }
-      ],
-      locality: [
-        { language: 'eng', value: 'Alibori' },
-        { language: 'fra', value: 'Alibori' }
-      ],
-      region: [
-        { language: 'eng', value: 'Alibori' },
-        { language: 'fra', value: 'Alibori' }
-      ],
-      postalCode: [
-        { language: 'eng', value: '00229' },
-        { language: 'fra', value: '00229' }
-      ],
-      country: [
-        { language: 'eng', value: 'BEN' },
-        { language: 'fra', value: 'BEN' }
-      ]
+      streetAddress: 'Banikoara',
+      locality: 'Alibori',
+      region: 'Alibori',
+      postalCode: '00229',
+      country: 'BEN'
     }
   };
 
