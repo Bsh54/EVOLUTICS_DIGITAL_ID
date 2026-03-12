@@ -63,7 +63,7 @@ async function getCsrfToken() {
 
   try {
     const response = await axios.get(`${ESIGNET_BASE_URL}/csrf/token`);
-    const csrfToken = response.data.response.csrfToken;
+    const csrfToken = response.data.token || response.data.response?.csrfToken;
     console.log('✅ Token CSRF obtenu');
     return csrfToken;
   } catch (error) {
