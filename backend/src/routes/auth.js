@@ -135,8 +135,8 @@ router.get('/callback', async (req, res, next) => {
 
     // Rediriger vers le frontend
     const redirectUrl = isRegistration
-      ? `${process.env.FRONTEND_URL}/welcome?new=true`
-      : `${process.env.FRONTEND_URL}/dashboard`;
+      ? `${process.env.FRONTEND_URL}/welcome.html?new=true`
+      : `${process.env.FRONTEND_URL}/dashboard.html`;
 
     console.log('✅ Redirecting to:', redirectUrl);
     res.redirect(redirectUrl);
