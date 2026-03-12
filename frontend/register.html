@@ -270,7 +270,6 @@
 
     <script>
         const API_URL = 'http://localhost:3002';
-        const MOCK_IDENTITY_URL = 'http://localhost:8082';
 
         function showAlert(message, type) {
             const alertContainer = document.getElementById('alertContainer');
@@ -308,75 +307,29 @@
                 pin: document.getElementById('pin').value
             };
 
-            const userData = {
-                requestTime: new Date().toISOString(),
-                request: {
-                    individualId: formData.individualId,
-                    pin: formData.pin,
-                    email: formData.email,
-                    phone: formData.phone,
-                    fullName: [
-                        { language: 'eng', value: `${formData.givenName} ${formData.familyName}` },
-                        { language: 'fra', value: `${formData.givenName} ${formData.familyName}` }
-                    ],
-                    givenName: [
-                        { language: 'eng', value: formData.givenName },
-                        { language: 'fra', value: formData.givenName }
-                    ],
-                    familyName: [
-                        { language: 'eng', value: formData.familyName },
-                        { language: 'fra', value: formData.familyName }
-                    ],
-                    dateOfBirth: formData.dateOfBirth,
-                    gender: [
-                        { language: 'eng', value: formData.gender },
-                        { language: 'fra', value: formData.gender === 'Male' ? 'Masculin' : 'Féminin' }
-                    ],
-                    encodedPhoto: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
-                    streetAddress: [
-                        { language: 'eng', value: formData.streetAddress },
-                        { language: 'fra', value: formData.streetAddress }
-                    ],
-                    locality: [
-                        { language: 'eng', value: formData.locality },
-                        { language: 'fra', value: formData.locality }
-                    ],
-                    region: [
-                        { language: 'eng', value: formData.region },
-                        { language: 'fra', value: formData.region }
-                    ],
-                    postalCode: '00229',
-                    country: [
-                        { language: 'eng', value: 'BEN' },
-                        { language: 'fra', value: 'BEN' }
-                    ]
-                }
-            };
-
             try {
-                const response = await fetch(`${MOCK_IDENTITY_URL}/v1/mock-identity-system/identity`, {
+                const response = await fetch(`${API_URL}/register/create`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(userData)
+                    body: JSON.stringify(formData)
                 });
 
                 const result = await response.json();
 
-                if (response.ok && !result.errors?.length) {
+                if (result.success) {
                     showAlert('✅ Compte créé avec succès! Redirection vers la connexion...', 'success');
                     setTimeout(() => {
                         window.location.href = '/';
                     }, 2000);
                 } else {
-                    const errorMsg = result.errors?.[0]?.message || 'Erreur lors de la création du compte';
-                    showAlert('❌ ' + errorMsg, 'error');
+                    showAlert('❌ ' + result.error, 'error');
                     setLoading(false);
                 }
             } catch (error) {
                 console.error('Registration error:', error);
-                showAlert('❌ Erreur de connexion au serveur. Vérifiez que Mock Identity System est démarré.', 'error');
+                showAlert('❌ Erreur de connexion au serveur. Vérifiez que le backend est démarré.', 'error');
                 setLoading(false);
             }
         });
