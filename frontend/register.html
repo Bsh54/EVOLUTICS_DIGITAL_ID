@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription - CottonPay ID</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #f5f5f5;
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .help-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🌾</div>
+            <h1>Créer votre compte CottonPay ID</h1>
+            <p class="subtitle">Remplissez le formulaire pour créer votre identité numérique</p>
+        </div>
+
+        <div id="alertContainer"></div>
+
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="individualId">Numéro d'Identification Nationale (NPI) *</label>
+                <input type="text" id="individualId" required
+                       pattern="[0-9]{16}" maxlength="16"
+                       placeholder="1234567890123456">
+                <div class="help-text">16 chiffres</div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="givenName">Prénom *</label>
+                    <input type="text" id="givenName" required placeholder="Koffi">
+                </div>
+                <div class="form-group">
+                    <label for="familyName">Nom de famille *</label>
+                    <input type="text" id="familyName" required placeholder="Mensah">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="dateOfBirth">Date de naissance *</label>
+                <input type="date" id="dateOfBirth" required>
+            </div>
+
+            <div class="form-group">
+                <label for="gender">Genre *</label>
+                <select id="gender" required>
+                    <option value="">Sélectionner...</option>
+                    <option value="Male">Masculin</option>
+                    <option value="Female">Féminin</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Téléphone *</label>
+                <input type="tel" id="phone" required
+                       pattern="\+229[0-9]{8}"
+                       placeholder="+22997123456">
+                <div class="help-text">Format: +229XXXXXXXX</div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email *</label>
+                <input type="email" id="email" required
+                       placeholder="exemple@email.com">
+            </div>
+
+            <div class="form-group">
+                <label for="streetAddress">Adresse</label>
+                <input type="text" id="streetAddress" placeholder="Banikoara">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="locality">Commune</label>
+                    <input type="text" id="locality" placeholder="Alibori">
+                </div>
+                <div class="form-group">
+                    <label for="region">Région</label>
+                    <input type="text" id="region" placeholder="Alibori">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="pin">Code PIN (OTP par défaut) *</label>
+                <input type="text" id="pin" required
+                       pattern="[0-9]{6}" maxlength="6"
+                       value="111111">
+                <div class="help-text">6 chiffres - utilisé pour l'authentification</div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="submitBtn">
+                Créer mon compte
+            </button>
+
+            <button type="button" class="btn btn-secondary" onclick="window.location.href='/'">
+                Retour
+            </button>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Création de votre compte en cours...</p>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3002';
+        const MOCK_IDENTITY_URL = 'http://localhost:8082';
+
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alertContainer');
+            alertContainer.innerHTML = `
+                <div class="alert alert-${type}">
+                    ${message}
+                </div>
+            `;
+            setTimeout(() => {
+                alertContainer.innerHTML = '';
+            }, 5000);
+        }
+
+        function setLoading(isLoading) {
+            document.getElementById('registerForm').style.display = isLoading ? 'none' : 'block';
+            document.getElementById('loading').style.display = isLoading ? 'block' : 'none';
+            document.getElementById('submitBtn').disabled = isLoading;
+        }
+
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            setLoading(true);
+
+            const formData = {
+                individualId: document.getElementById('individualId').value,
+                givenName: document.getElementById('givenName').value,
+                familyName: document.getElementById('familyName').value,
+                dateOfBirth: document.getElementById('dateOfBirth').value.replace(/-/g, '/'),
+                gender: document.getElementById('gender').value,
+                phone: document.getElementById('phone').value,
+                email: document.getElementById('email').value,
+                streetAddress: document.getElementById('streetAddress').value || 'N/A',
+                locality: document.getElementById('locality').value || 'N/A',
+                region: document.getElementById('region').value || 'N/A',
+                pin: document.getElementById('pin').value
+            };
+
+            const userData = {
+                requestTime: new Date().toISOString(),
+                request: {
+                    individualId: formData.individualId,
+                    pin: formData.pin,
+                    email: formData.email,
+                    phone: formData.phone,
+                    fullName: [
+                        { language: 'eng', value: `${formData.givenName} ${formData.familyName}` },
+                        { language: 'fra', value: `${formData.givenName} ${formData.familyName}` }
+                    ],
+                    givenName: [
+                        { language: 'eng', value: formData.givenName },
+                        { language: 'fra', value: formData.givenName }
+                    ],
+                    familyName: [
+                        { language: 'eng', value: formData.familyName },
+                        { language: 'fra', value: formData.familyName }
+                    ],
+                    dateOfBirth: formData.dateOfBirth,
+                    gender: [
+                        { language: 'eng', value: formData.gender },
+                        { language: 'fra', value: formData.gender === 'Male' ? 'Masculin' : 'Féminin' }
+                    ],
+                    encodedPhoto: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+                    streetAddress: [
+                        { language: 'eng', value: formData.streetAddress },
+                        { language: 'fra', value: formData.streetAddress }
+                    ],
+                    locality: [
+                        { language: 'eng', value: formData.locality },
+                        { language: 'fra', value: formData.locality }
+                    ],
+                    region: [
+                        { language: 'eng', value: formData.region },
+                        { language: 'fra', value: formData.region }
+                    ],
+                    postalCode: '00229',
+                    country: [
+                        { language: 'eng', value: 'BEN' },
+                        { language: 'fra', value: 'BEN' }
+                    ]
+                }
+            };
+
+            try {
+                const response = await fetch(`${MOCK_IDENTITY_URL}/v1/mock-identity-system/identity`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(userData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok && !result.errors?.length) {
+                    showAlert('✅ Compte créé avec succès! Redirection vers la connexion...', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 2000);
+                } else {
+                    const errorMsg = result.errors?.[0]?.message || 'Erreur lors de la création du compte';
+                    showAlert('❌ ' + errorMsg, 'error');
+                    setLoading(false);
+                }
+            } catch (error) {
+                console.error('Registration error:', error);
+                showAlert('❌ Erreur de connexion au serveur. Vérifiez que Mock Identity System est démarré.', 'error');
+                setLoading(false);
+            }
+        });
+    </script>
+</body>
+</html>
