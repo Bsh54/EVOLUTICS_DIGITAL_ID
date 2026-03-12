@@ -1,0 +1,48 @@
+{
+  "name": "cottonpay-id",
+  "version": "1.0.0",
+  "description": "Digital Identity Payment Gateway for Cotton Farmers - eSignet Integration",
+  "main": "backend/server.js",
+  "scripts": {
+    "start:backend": "node backend/server.js",
+    "start:frontend": "cd frontend && npm start",
+    "dev:backend": "nodemon backend/server.js",
+    "register-client": "node scripts/register-client.js",
+    "create-test-user": "node scripts/create-test-user.js",
+    "test": "jest",
+    "test:e2e": "node scripts/test-e2e.js"
+  },
+  "keywords": [
+    "digital-identity",
+    "esignet",
+    "mosip",
+    "oidc",
+    "oauth2",
+    "agriculture",
+    "financial-inclusion",
+    "benin",
+    "africa"
+  ],
+  "author": "Team EVOLUTICS - UAC",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "axios": "^1.6.5",
+    "dotenv": "^16.4.1",
+    "jsonwebtoken": "^9.0.2",
+    "jose": "^5.2.0",
+    "cors": "^2.8.5",
+    "express-session": "^1.18.0",
+    "cookie-parser": "^1.4.6",
+    "crypto": "^1.0.1",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.3",
+    "jest": "^29.7.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}
