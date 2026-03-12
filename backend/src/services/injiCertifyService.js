@@ -5,10 +5,20 @@
 
 const axios = require('axios');
 const crypto = require('crypto');
+const { Pool } = require('pg');
 
-// Stockage en mémoire des credentials (en production, utiliser une base de données)
+// Connexion à la base de données PostgreSQL d'Inji Certify
+const pool = new Pool({
+  host: 'localhost',
+  port: 5455,
+  database: 'mosip_esignet',
+  user: 'postgres',
+  password: 'postgres'
+});
+
+// Stockage en mémoire des credentials (fallback si DB non disponible)
 const credentialsStore = new Map();
-// Stockage en mémoire des ventes par utilisateur
+// Stockage en mémoire des ventes par utilisateur (fallback si DB non disponible)
 const salesByUser = new Map();
 
 class InjiCertifyService {
@@ -204,22 +214,61 @@ class InjiCertifyService {
   async storeSale(userSub, saleData) {
     console.log('💾 Stockage de la vente pour l\'utilisateur:', userSub);
 
-    // Récupérer l'historique existant ou créer un nouveau
-    let userSales = salesByUser.get(userSub) || [];
+    try {
+      // Stocker dans la base de données PostgreSQL d'Inji Certify
+      const query = `
+        INSERT INTO certify.cottonpay_sales (
+          farmer_name, farmer_npi, farmer_phone,
+          sale_date, sale_time,
+          cotton_weight_kg, unit_price_fcfa, total_amount_fcfa,
+          payment_reference, payment_status, payment_method,
+          transaction_id, credential_id, credential_issued
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+        RETURNING id
+      `;
 
-    // Ajouter la nouvelle vente
-    userSales.unshift({
-      ...saleData,
-      createdAt: new Date().toISOString()
-    });
+      const values = [
+        saleData.farmerName,
+        saleData.farmerNPI,
+        saleData.farmerPhone,
+        saleData.saleDate,
+        saleData.saleTime,
+        saleData.weight,
+        saleData.unitPrice,
+        saleData.totalAmount,
+        saleData.paymentReference,
+        saleData.paymentStatus,
+        'Mobile Money MTN',
+        saleData.transactionId,
+        saleData.credentialId || null,
+        false
+      ];
 
-    // Stocker l'historique mis à jour
-    salesByUser.set(userSub, userSales);
+      const result = await pool.query(query, values);
+      console.log('✅ Vente stockée dans PostgreSQL avec ID:', result.rows[0].id);
 
-    return {
-      stored: true,
-      totalSales: userSales.length
-    };
+      return {
+        stored: true,
+        dbId: result.rows[0].id
+      };
+
+    } catch (error) {
+      console.error('❌ Erreur lors du stockage dans PostgreSQL:', error.message);
+      console.log('⚠️ Fallback vers stockage en mémoire');
+
+      // Fallback vers stockage en mémoire
+      let userSales = salesByUser.get(userSub) || [];
+      userSales.unshift({
+        ...saleData,
+        createdAt: new Date().toISOString()
+      });
+      salesByUser.set(userSub, userSales);
+
+      return {
+        stored: true,
+        totalSales: userSales.length
+      };
+    }
   }
 
   /**
@@ -228,9 +277,41 @@ class InjiCertifyService {
   async getUserSalesHistory(userSub) {
     console.log('📋 Récupération de l\'historique pour:', userSub);
 
-    const userSales = salesByUser.get(userSub) || [];
+    try {
+      // Récupérer depuis PostgreSQL
+      const query = `
+        SELECT
+          transaction_id as "transactionId",
+          farmer_name as "farmerName",
+          farmer_npi as "farmerNPI",
+          farmer_phone as "farmerPhone",
+          cotton_weight_kg as weight,
+          unit_price_fcfa as "unitPrice",
+          total_amount_fcfa as "totalAmount",
+          payment_reference as "paymentReference",
+          payment_status as "paymentStatus",
+          TO_CHAR(sale_date, 'YYYY-MM-DD') as "saleDate",
+          TO_CHAR(sale_time, 'HH24:MI:SS') as "saleTime",
+          credential_id as "credentialId",
+          cr_dtimes as "createdAt"
+        FROM certify.cottonpay_sales
+        WHERE farmer_npi = $1
+        ORDER BY cr_dtimes DESC
+      `;
 
-    return userSales;
+      const result = await pool.query(query, [userSub]);
+      console.log(`✅ ${result.rows.length} ventes trouvées dans PostgreSQL`);
+
+      return result.rows;
+
+    } catch (error) {
+      console.error('❌ Erreur lors de la récupération depuis PostgreSQL:', error.message);
+      console.log('⚠️ Fallback vers stockage en mémoire');
+
+      // Fallback vers stockage en mémoire
+      const userSales = salesByUser.get(userSub) || [];
+      return userSales;
+    }
   }
 
   /**
@@ -239,17 +320,52 @@ class InjiCertifyService {
   async getSaleByTransactionId(transactionId) {
     console.log('🔍 Recherche de la vente:', transactionId);
 
-    // Parcourir tous les utilisateurs pour trouver la vente
-    for (const [userSub, sales] of salesByUser.entries()) {
-      const sale = sales.find(s => s.transactionId === transactionId);
-      if (sale) {
-        console.log('✅ Vente trouvée pour l\'utilisateur:', userSub);
-        return sale;
-      }
-    }
+    try {
+      // Récupérer depuis PostgreSQL
+      const query = `
+        SELECT
+          transaction_id as "transactionId",
+          farmer_name as "farmerName",
+          farmer_npi as "farmerNPI",
+          farmer_phone as "farmerPhone",
+          cotton_weight_kg as weight,
+          unit_price_fcfa as "unitPrice",
+          total_amount_fcfa as "totalAmount",
+          payment_reference as "paymentReference",
+          payment_status as "paymentStatus",
+          TO_CHAR(sale_date, 'YYYY-MM-DD') as "saleDate",
+          TO_CHAR(sale_time, 'HH24:MI:SS') as "saleTime",
+          credential_id as "credentialId"
+        FROM certify.cottonpay_sales
+        WHERE transaction_id = $1
+      `;
 
-    console.log('❌ Vente introuvable');
-    return null;
+      const result = await pool.query(query, [transactionId]);
+
+      if (result.rows.length > 0) {
+        console.log('✅ Vente trouvée dans PostgreSQL');
+        return result.rows[0];
+      }
+
+      console.log('❌ Vente introuvable dans PostgreSQL');
+      return null;
+
+    } catch (error) {
+      console.error('❌ Erreur lors de la recherche dans PostgreSQL:', error.message);
+      console.log('⚠️ Fallback vers stockage en mémoire');
+
+      // Fallback vers stockage en mémoire
+      for (const [userSub, sales] of salesByUser.entries()) {
+        const sale = sales.find(s => s.transactionId === transactionId);
+        if (sale) {
+          console.log('✅ Vente trouvée en mémoire pour l\'utilisateur:', userSub);
+          return sale;
+        }
+      }
+
+      console.log('❌ Vente introuvable');
+      return null;
+    }
   }
 }
 
