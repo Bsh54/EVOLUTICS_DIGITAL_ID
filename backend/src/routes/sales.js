@@ -212,6 +212,55 @@ router.get('/credential/:credentialId', requireAuth, async (req, res) => {
 });
 
 /**
+ * GET /sales/verify/:transactionId
+ * Vérifier un reçu et récupérer l'historique de l'agriculteur (pour agents bancaires)
+ * Endpoint public sans authentification
+ */
+router.get('/verify/:transactionId', async (req, res) => {
+  try {
+    const { transactionId } = req.params;
+
+    console.log('🔍 Vérification du reçu:', transactionId);
+
+    // Récupérer la vente depuis le service
+    const sale = await injiCertifyService.getSaleByTransactionId(transactionId);
+
+    if (!sale) {
+      return res.status(404).json({
+        success: false,
+        error: 'Transaction introuvable'
+      });
+    }
+
+    // Récupérer l'historique complet de l'agriculteur
+    const farmerHistory = await injiCertifyService.getUserSalesHistory(sale.farmerNPI);
+
+    // Calculer les statistiques pour évaluation de crédit
+    const totalRevenue = farmerHistory.reduce((sum, s) => sum + s.totalAmount, 0);
+    const averageRevenue = farmerHistory.length > 0 ? Math.round(totalRevenue / farmerHistory.length) : 0;
+
+    res.json({
+      success: true,
+      verified: true,
+      sale: sale,
+      farmerHistory: farmerHistory,
+      summary: {
+        totalSales: farmerHistory.length,
+        totalRevenue: totalRevenue,
+        averageRevenue: averageRevenue
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Erreur lors de la vérification:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Erreur lors de la vérification'
+    });
+  }
+});
+
+/**
  * POST /sales/webhook
  * Webhook pour recevoir les notifications d'Inji Certify
  */

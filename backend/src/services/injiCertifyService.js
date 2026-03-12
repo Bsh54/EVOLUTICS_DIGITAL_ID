@@ -232,6 +232,25 @@ class InjiCertifyService {
 
     return userSales;
   }
+
+  /**
+   * Récupérer une vente par son ID de transaction
+   */
+  async getSaleByTransactionId(transactionId) {
+    console.log('🔍 Recherche de la vente:', transactionId);
+
+    // Parcourir tous les utilisateurs pour trouver la vente
+    for (const [userSub, sales] of salesByUser.entries()) {
+      const sale = sales.find(s => s.transactionId === transactionId);
+      if (sale) {
+        console.log('✅ Vente trouvée pour l\'utilisateur:', userSub);
+        return sale;
+      }
+    }
+
+    console.log('❌ Vente introuvable');
+    return null;
+  }
 }
 
 module.exports = new InjiCertifyService();
