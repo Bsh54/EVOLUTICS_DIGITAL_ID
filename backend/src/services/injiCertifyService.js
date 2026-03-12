@@ -6,6 +6,9 @@
 const axios = require('axios');
 const crypto = require('crypto');
 
+// Stockage en mémoire des credentials (en production, utiliser une base de données)
+const credentialsStore = new Map();
+
 class InjiCertifyService {
   constructor() {
     this.certifyBaseUrl = process.env.INJI_CERTIFY_URL || 'http://localhost:8090/v1/certify';
@@ -148,8 +151,16 @@ class InjiCertifyService {
    * Stocker le credential dans la base de données
    */
   async storeCredential(saleId, credentialData) {
-    // TODO: Implémenter le stockage en base de données
     console.log('💾 Stockage du credential pour la vente:', saleId);
+
+    // Stocker en mémoire (en production, utiliser une vraie DB)
+    credentialsStore.set(credentialData.credentialId, {
+      saleId: saleId,
+      credentialId: credentialData.credentialId,
+      credential: credentialData.credential,
+      createdAt: new Date().toISOString()
+    });
+
     return {
       stored: true,
       credentialId: credentialData.credentialId
@@ -161,6 +172,17 @@ class InjiCertifyService {
    */
   async getCredential(credentialId) {
     try {
+      console.log('🔍 Récupération du credential:', credentialId);
+
+      // Récupérer depuis le stockage en mémoire
+      const storedCredential = credentialsStore.get(credentialId);
+
+      if (storedCredential) {
+        console.log('✅ Credential trouvé dans le stockage');
+        return storedCredential;
+      }
+
+      // Si pas trouvé en mémoire, essayer l'API Inji Certify
       const endpoint = `${this.certifyBaseUrl}/credentials/${credentialId}`;
 
       const response = await axios.get(endpoint, {
