@@ -122,6 +122,33 @@ class AuthService {
       throw new Error('Invalid ID token');
     }
   }
+
+  /**
+   * Récupérer les informations utilisateur depuis /userinfo
+   */
+  async getUserInfo(accessToken) {
+    try {
+      const userinfoUrl = process.env.ESIGNET_USERINFO_URL || `${this.esignetBaseUrl}/oidc/userinfo`;
+
+      console.log('🔄 Fetching user info from:', userinfoUrl);
+
+      const response = await axios.get(userinfoUrl, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error('❌ UserInfo error:', error.response?.data || error.message);
+      // Retourner des valeurs par défaut si l'appel échoue
+      return {
+        name: 'Utilisateur',
+        phone_number: '-',
+        email: '-'
+      };
+    }
+  }
 }
 
 module.exports = new AuthService();

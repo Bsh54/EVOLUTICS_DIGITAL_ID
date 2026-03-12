@@ -3,7 +3,7 @@
  * eSignet OIDC Integration
  */
 
-require('dotenv').config({ path: '../.env' });
+require('dotenv').config({ path: './.env' });
 const express = require('express');
 const cors = require('cors');
 const session = require('express-session');

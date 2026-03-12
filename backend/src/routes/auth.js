@@ -21,39 +21,8 @@ router.get('/login', async (req, res, next) => {
 
     // Stocker code_verifier en session
     req.session.codeVerifier = codeVerifier;
-    req.session.authFlow = 'login';
 
     // Construire l'URL d'autorisation
-    const authUrl = authService.buildAuthorizationUrl({
-      codeChallenge,
-      state: req.session.id,
-      nonce: Math.random().toString(36).substring(7)
-    });
-
-    console.log('✅ Redirecting to eSignet:', authUrl);
-    res.json({ authUrl });
-
-  } catch (error) {
-    next(error);
-  }
-});
-
-/**
- * GET /auth/register
- * Initie le flux d'inscription OIDC
- */
-router.get('/register', async (req, res, next) => {
-  try {
-    console.log('📝 Initiating registration flow...');
-
-    // Générer PKCE
-    const { codeVerifier, codeChallenge } = generatePKCE();
-
-    // Stocker code_verifier en session
-    req.session.codeVerifier = codeVerifier;
-    req.session.authFlow = 'register';
-
-    // Construire l'URL d'autorisation (même flux que login)
     const authUrl = authService.buildAuthorizationUrl({
       codeChallenge,
       state: req.session.id,
@@ -117,26 +86,25 @@ router.get('/callback', async (req, res, next) => {
 
     console.log('✅ User authenticated:', userInfo.sub);
 
+    // Récupérer les informations utilisateur complètes depuis /userinfo
+    const userDetails = await authService.getUserInfo(tokens.access_token);
+
+    console.log('✅ User details from userinfo:', userDetails);
+
     // Stocker les informations en session
     req.session.user = {
       sub: userInfo.sub,
-      name: userInfo.name,
-      phone_number: userInfo.phone_number,
-      email: userInfo.email
+      name: userDetails.name || userDetails.given_name || 'Utilisateur',
+      phone_number: userDetails.phone_number || userDetails.phone || '-',
+      email: userDetails.email || '-'
     };
     req.session.accessToken = tokens.access_token;
 
-    // Déterminer si c'est une inscription ou connexion
-    const isRegistration = req.session.authFlow === 'register';
-
     // Nettoyer la session
     delete req.session.codeVerifier;
-    delete req.session.authFlow;
 
-    // Rediriger vers le frontend
-    const redirectUrl = isRegistration
-      ? `${process.env.FRONTEND_URL}/welcome.html?new=true`
-      : `${process.env.FRONTEND_URL}/dashboard.html`;
+    // Rediriger vers le dashboard
+    const redirectUrl = `${process.env.FRONTEND_URL}/dashboard.html`;
 
     console.log('✅ Redirecting to:', redirectUrl);
     res.redirect(redirectUrl);
