@@ -70,6 +70,22 @@ router.post('/create', requireAuth, async (req, res, next) => {
     // Stocker le credential
     await injiCertifyService.storeCredential(transactionId, credentialResult);
 
+    // Stocker la vente dans l'historique
+    await injiCertifyService.storeSale(user.sub, {
+      transactionId: transactionId,
+      farmerName: saleData.farmerName,
+      farmerNPI: saleData.farmerNPI,
+      farmerPhone: saleData.farmerPhone,
+      weight: weight,
+      unitPrice: unitPrice,
+      totalAmount: totalAmount,
+      paymentReference: paymentReference,
+      paymentStatus: paymentStatus,
+      saleDate: saleData.saleDate,
+      saleTime: saleData.saleTime,
+      credentialId: credentialResult.credentialId
+    });
+
     console.log('✅ Vente enregistrée avec succès:', transactionId);
 
     // Retourner la réponse
@@ -111,11 +127,12 @@ router.get('/history', requireAuth, async (req, res) => {
   try {
     const user = req.session.user;
 
-    // TODO: Récupérer depuis la base de données
-    // Pour le moment, retourner un tableau vide
+    // Récupérer l'historique depuis le service
+    const history = await injiCertifyService.getUserSalesHistory(user.sub);
+
     res.json({
       success: true,
-      sales: []
+      sales: history
     });
 
   } catch (error) {

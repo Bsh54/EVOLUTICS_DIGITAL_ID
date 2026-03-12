@@ -8,6 +8,8 @@ const crypto = require('crypto');
 
 // Stockage en mémoire des credentials (en production, utiliser une base de données)
 const credentialsStore = new Map();
+// Stockage en mémoire des ventes par utilisateur
+const salesByUser = new Map();
 
 class InjiCertifyService {
   constructor() {
@@ -194,6 +196,41 @@ class InjiCertifyService {
       console.error('❌ Erreur lors de la récupération du credential:', error.message);
       return null;
     }
+  }
+
+  /**
+   * Stocker une vente dans l'historique de l'utilisateur
+   */
+  async storeSale(userSub, saleData) {
+    console.log('💾 Stockage de la vente pour l\'utilisateur:', userSub);
+
+    // Récupérer l'historique existant ou créer un nouveau
+    let userSales = salesByUser.get(userSub) || [];
+
+    // Ajouter la nouvelle vente
+    userSales.unshift({
+      ...saleData,
+      createdAt: new Date().toISOString()
+    });
+
+    // Stocker l'historique mis à jour
+    salesByUser.set(userSub, userSales);
+
+    return {
+      stored: true,
+      totalSales: userSales.length
+    };
+  }
+
+  /**
+   * Récupérer l'historique des ventes d'un utilisateur
+   */
+  async getUserSalesHistory(userSub) {
+    console.log('📋 Récupération de l\'historique pour:', userSub);
+
+    const userSales = salesByUser.get(userSub) || [];
+
+    return userSales;
   }
 }
 
