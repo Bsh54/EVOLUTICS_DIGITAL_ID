@@ -138,6 +138,19 @@ class AuthService {
         }
       });
 
+      // Si la réponse est un JWT (string), le décoder
+      if (typeof response.data === 'string') {
+        console.log('🔄 UserInfo is a JWT, decoding...');
+
+        // Décoder le JWT sans vérification (car déjà vérifié par eSignet)
+        const parts = response.data.split('.');
+        if (parts.length === 3) {
+          const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
+          console.log('✅ UserInfo decoded:', payload);
+          return payload;
+        }
+      }
+
       return response.data;
     } catch (error) {
       console.error('❌ UserInfo error:', error.response?.data || error.message);
