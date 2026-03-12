@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historique des Ventes - CottonPay</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #F59E0B;
+            --secondary: #FBBF24;
+            --cta: #8B5CF6;
+            --background: #0F172A;
+            --text: #F8FAFC;
+            --success: #10B981;
+            --danger: #EF4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--background);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            padding-bottom: 40px;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 50%, var(--primary) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 50%, var(--cta) 0%, transparent 50%);
+            opacity: 0.15;
+            animation: rotate 30s linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: var(--text);
+            font-size: 32px;
+            font-weight: 800;
+        }
+
+        .back-btn {
+            background: rgba(139, 92, 246, 0.2);
+            border: 2px solid rgba(139, 92, 246, 0.4);
+            color: var(--text);
+            padding: 12px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            background: rgba(139, 92, 246, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .sales-list {
+            display: grid;
+            gap: 20px;
+        }
+
+        .sale-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .sale-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(139, 92, 246, 0.3);
+        }
+
+        .sale-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .sale-id {
+            color: var(--secondary);
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .sale-date {
+            color: rgba(248, 250, 252, 0.7);
+            font-size: 14px;
+        }
+
+        .sale-amount {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--success);
+            margin-bottom: 16px;
+        }
+
+        .sale-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .detail-label {
+            color: rgba(248, 250, 252, 0.6);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .detail-value {
+            color: var(--text);
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(248, 250, 252, 0.6);
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text);
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Historique des Ventes</h1>
+            <a href="/dashboard.html" class="back-btn">← Retour</a>
+        </div>
+
+        <div id="salesList" class="sales-list">
+            <div class="loading">Chargement de l'historique...</div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3002';
+
+        async function loadSalesHistory() {
+            try {
+                const response = await fetch(`${API_URL}/sales/history`, {
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        window.location.href = '/';
+                        return;
+                    }
+                    throw new Error('Erreur lors du chargement');
+                }
+
+                const data = await response.json();
+                displaySales(data.sales);
+
+            } catch (error) {
+                console.error('Error loading sales:', error);
+                document.getElementById('salesList').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">❌</div>
+                        <p>Erreur lors du chargement de l'historique</p>
+                    </div>
+                `;
+            }
+        }
+
+        function displaySales(sales) {
+            const container = document.getElementById('salesList');
+
+            if (sales.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📦</div>
+                        <p>Aucune vente enregistrée</p>
+                        <p style="margin-top: 10px;">Effectuez votre première vente pour voir l'historique</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = sales.map(sale => `
+                <div class="sale-card" onclick="viewSaleDetail('${sale.transactionId}')">
+                    <div class="sale-header">
+                        <div class="sale-id">${sale.transactionId}</div>
+                        <div class="sale-date">${sale.saleDate} ${sale.saleTime}</div>
+                    </div>
+                    <div class="sale-amount">${sale.totalAmount.toLocaleString('fr-FR')} FCFA</div>
+                    <div class="sale-details">
+                        <div class="detail-item">
+                            <div class="detail-label">Poids</div>
+                            <div class="detail-value">${sale.weight} kg</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Prix unitaire</div>
+                            <div class="detail-value">${sale.unitPrice} FCFA/kg</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Statut</div>
+                            <div class="detail-value" style="color: var(--success)">✓ ${sale.paymentStatus}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Référence</div>
+                            <div class="detail-value">${sale.paymentReference}</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function viewSaleDetail(transactionId) {
+            window.location.href = `/receipt.html?id=${transactionId}`;
+        }
+
+        // Charger l'historique au chargement de la page
+        loadSalesHistory();
+    </script>
+</body>
+</html>
