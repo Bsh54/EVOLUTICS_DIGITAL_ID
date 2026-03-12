@@ -78,17 +78,16 @@ async function registerClient(publicKeyJWK, csrfToken) {
   const clientData = {
     requestTime: new Date().toISOString(),
     request: {
-      clientName: {
-        '@none': CLIENT_NAME
-      },
+      clientId: 'cottonpay-' + Date.now(),
+      clientName: CLIENT_NAME,
+      relyingPartyId: 'cottonpay-rp',
       logoUri: 'https://via.placeholder.com/150',
       redirectUris: [REDIRECT_URI],
       grantTypes: ['authorization_code'],
       clientAuthMethods: ['private_key_jwt'],
       publicKey: publicKeyJWK,
       authContextRefs: ['mosip:idp:acr:generated-code', 'mosip:idp:acr:biometrics'],
-      userClaims: ['name', 'phone_number', 'email', 'picture'],
-      status: 'ACTIVE'
+      userClaims: ['name', 'phone_number', 'email', 'picture']
     }
   };
 
@@ -104,7 +103,13 @@ async function registerClient(publicKeyJWK, csrfToken) {
       }
     );
 
-    const clientId = response.data.response.clientId;
+    const clientId = response.data.response?.clientId || response.data.clientId;
+
+    if (!clientId) {
+      console.error('❌ Réponse reçue:', JSON.stringify(response.data, null, 2));
+      throw new Error('Client ID non trouvé dans la réponse');
+    }
+
     console.log('✅ Client enregistré avec succès!');
     console.log('📋 Client ID:', clientId);
 

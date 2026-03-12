@@ -17,14 +17,24 @@ async function createTestUser() {
   `);
 
   const testUser = {
-    individualId: 'TEST123456',
-    fullName: 'Koffi Mensah',
-    phone: '+22997123456',
-    email: 'koffi.mensah@example.com',
-    dateOfBirth: '1985-05-15',
-    gender: 'Male',
-    address: 'Banikoara, Alibori, Benin',
-    pin: '123456'
+    requestTime: new Date().toISOString(),
+    request: {
+      individualId: 'TEST123456',
+      pin: '111111',
+      email: 'koffi.mensah@example.com',
+      phone: '+22997123456',
+      fullName: [
+        { language: 'eng', value: 'Koffi Mensah' },
+        { language: 'fra', value: 'Koffi Mensah' }
+      ],
+      dateOfBirth: '1985/05/15',
+      gender: 'Male',
+      streetAddress: 'Banikoara',
+      locality: 'Alibori',
+      region: 'Alibori',
+      postalCode: '00229',
+      country: 'BEN'
+    }
   };
 
   try {
@@ -32,7 +42,7 @@ async function createTestUser() {
     console.log('Données:', JSON.stringify(testUser, null, 2));
 
     const response = await axios.post(
-      `${MOCK_IDENTITY_URL}/identity`,
+      `${MOCK_IDENTITY_URL}/v1/mock-identity-system/identity`,
       testUser,
       {
         headers: {
@@ -44,14 +54,14 @@ async function createTestUser() {
     console.log('✅ Utilisateur créé avec succès!');
     console.log('\n📋 Informations de connexion:');
     console.log('─────────────────────────────────────────');
-    console.log(`NPI (Individual ID): ${testUser.individualId}`);
-    console.log(`Nom: ${testUser.fullName}`);
-    console.log(`Téléphone: ${testUser.phone}`);
-    console.log(`Email: ${testUser.email}`);
-    console.log(`PIN: ${testUser.pin}`);
+    console.log(`NPI (Individual ID): ${testUser.request.individualId}`);
+    console.log(`Nom: ${testUser.request.fullName[0].value}`);
+    console.log(`Téléphone: ${testUser.request.phone}`);
+    console.log(`Email: ${testUser.request.email}`);
+    console.log(`PIN/OTP: ${testUser.request.pin}`);
     console.log('─────────────────────────────────────────');
     console.log('\n💡 Utilisez ces informations pour tester la connexion');
-    console.log('   L\'OTP sera envoyé au numéro de téléphone ci-dessus');
+    console.log('   L\'OTP par défaut est: 111111');
 
   } catch (error) {
     console.error('❌ Erreur lors de la création:', error.response?.data || error.message);
