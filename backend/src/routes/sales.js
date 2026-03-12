@@ -151,14 +151,24 @@ router.get('/history', requireAuth, async (req, res) => {
 router.get('/:transactionId', requireAuth, async (req, res) => {
   try {
     const { transactionId } = req.params;
+    const user = req.session.user;
 
-    // TODO: Récupérer depuis la base de données
+    // Récupérer l'historique de l'utilisateur
+    const history = await injiCertifyService.getUserSalesHistory(user.sub);
+
+    // Trouver la vente spécifique
+    const sale = history.find(s => s.transactionId === transactionId);
+
+    if (!sale) {
+      return res.status(404).json({
+        success: false,
+        error: 'Vente introuvable'
+      });
+    }
+
     res.json({
       success: true,
-      sale: {
-        transactionId: transactionId,
-        status: 'completed'
-      }
+      sale: sale
     });
 
   } catch (error) {
