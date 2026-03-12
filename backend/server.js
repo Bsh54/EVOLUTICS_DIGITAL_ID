@@ -41,6 +41,12 @@ app.use(session({
 app.use('/auth', authRoutes);
 app.use('/user', userRoutes);
 
+// Redirect /callback to /auth/callback
+app.get('/callback', (req, res) => {
+  const queryString = new URLSearchParams(req.query).toString();
+  res.redirect(`/auth/callback?${queryString}`);
+});
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({
