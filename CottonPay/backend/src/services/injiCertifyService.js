@@ -17,8 +17,9 @@ const pool = new Pool({
 class InjiCertifyService {
   constructor() {
     this.certifyBaseUrl = process.env.INJI_CERTIFY_URL || 'http://localhost:8090/v1/certify';
+    // L'audience attendue par le validateur (JwtProofValidator) est mosip.certify.identifier
+    this.certifyIdentifier = 'http://certify-nginx:80'; 
     this.credentialType = 'CottonPaySaleReceipt';
-    this.clientId = 'cottonpay-client';
     
     // Génération de la paire de clés pour la preuve (Proof of Possession)
     const { publicKey, privateKey } = crypto.generateKeyPairSync('ec', {
@@ -30,19 +31,21 @@ class InjiCertifyService {
 
   async generateProofToken(audience, nonce) {
     const jwk = await exportJWK(this.publicKey);
-    // On doit ajouter kty manuellement car la librairie jose peut loublier selon les versions
+    // On force la suppression du 'kid' car Inji interdit d'avoir à la fois 'kid' et 'jwk'
+    delete jwk.kid;
+    
+    // Inji exige la présence de alg dans le jwk
     jwk.alg = 'ES256';
     jwk.use = 'sig';
 
     return await new SignJWT({
-        aud: audience,
-        iss: this.clientId, // Émetteur = client ID
-        nonce: nonce
+        aud: audience, 
+        nonce: nonce // C'est ici que doit aller le nonce magique
       })
       .setProtectedHeader({ 
         alg: 'ES256', 
-        typ: 'openid4vci-proof+jwt', // Le type ultra-strict exigé par Inji
-        jwk: jwk // La clé publique embarquée
+        typ: 'openid4vci-proof+jwt', 
+        jwk: jwk 
       })
       .setIssuedAt()
       .setExpirationTime('5m')
@@ -53,15 +56,17 @@ class InjiCertifyService {
     try {
       console.log('🎫 Génération du Verifiable Credential pour la vente:', saleData.transactionId);
 
-      // 1. Générer le Proof Token chirurgicalement valide pour Inji
-      // L'audience d'Inji est souvent l'URL de base du serveur (sans /issuance/credential)
-      // On va utiliser certifyBaseUrl
+      // 1. Le Nonce "Magique" que nous avons lu dans le mock de LocalAccessTokenValidationFilter.java
+      const magicNonce = 'nZEA28AFIrUsYD8o5vDG';
+
+      // 2. Générer le Proof Token chirurgicalement valide
+      // L'audience d'Inji est mosip.certify.identifier
       const proofToken = await this.generateProofToken(
-        this.certifyBaseUrl,
-        crypto.randomBytes(16).toString('hex')
+        this.certifyIdentifier,
+        magicNonce
       );
 
-      // 2. Préparer la requête OpenID4VCI
+      // 3. Préparer la requête OpenID4VCI
       const requestBody = {
         format: 'ldp_vc',
         credential_definition: {
@@ -82,7 +87,7 @@ class InjiCertifyService {
       const response = await axios.post(`${this.certifyBaseUrl}/issuance/credential`, requestBody, {
         headers: {
           'Content-Type': 'application/json'
-          // Pas d'Authorization car on utilise le mode bypass local d'Inji
+          // Pas d'Authorization car on utilise le mode bypass local d'Inji qui charge le mock token
         },
         timeout: 60000 
       });
