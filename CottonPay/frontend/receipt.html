@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reçu de Vente - CottonPay</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #F59E0B;
+            --secondary: #FBBF24;
+            --cta: #8B5CF6;
+            --background: #0F172A;
+            --text: #F8FAFC;
+            --success: #10B981;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--background);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            padding: 20px;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 50%, var(--primary) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 50%, var(--cta) 0%, transparent 50%);
+            opacity: 0.15;
+            animation: rotate 30s linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .receipt-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 20px;
+        }
+
+        .receipt-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .receipt-title {
+            color: var(--primary);
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .receipt-subtitle {
+            color: rgba(248, 250, 252, 0.7);
+            font-size: 14px;
+        }
+
+        .amount-section {
+            text-align: center;
+            margin: 30px 0;
+            padding: 30px;
+            background: rgba(16, 185, 129, 0.1);
+            border-radius: 16px;
+            border: 2px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .amount-label {
+            color: rgba(248, 250, 252, 0.7);
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .amount-value {
+            color: var(--success);
+            font-size: 48px;
+            font-weight: 800;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .detail-label {
+            color: rgba(248, 250, 252, 0.6);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .detail-value {
+            color: var(--text);
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .qr-section {
+            text-align: center;
+            margin: 40px 0;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+        }
+
+        .qr-title {
+            color: var(--background);
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        #qrcode {
+            display: inline-block;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+        }
+
+        .qr-instructions {
+            color: rgba(15, 23, 42, 0.7);
+            font-size: 14px;
+            margin-top: 20px;
+            line-height: 1.6;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--cta) 0%, #7C3AED 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: var(--text);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text);
+            font-size: 18px;
+        }
+
+        .verified-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(16, 185, 129, 0.2);
+            border: 2px solid rgba(16, 185, 129, 0.4);
+            color: var(--success);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="receiptContent" class="receipt-card">
+            <div class="loading">Chargement du reçu...</div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3002';
+
+        async function loadReceipt() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const transactionId = urlParams.get('id');
+
+                if (!transactionId) {
+                    throw new Error('ID de transaction manquant');
+                }
+
+                const response = await fetch(`${API_URL}/sales/${transactionId}`, {
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        window.location.href = '/';
+                        return;
+                    }
+                    throw new Error('Reçu introuvable');
+                }
+
+                const data = await response.json();
+                displayReceipt(data.sale);
+
+            } catch (error) {
+                console.error('Error loading receipt:', error);
+                document.getElementById('receiptContent').innerHTML = `
+                    <div class="loading">
+                        ❌ Erreur lors du chargement du reçu
+                        <br><br>
+                        <a href="/history.html" class="btn btn-secondary">Retour à l'historique</a>
+                    </div>
+                `;
+            }
+        }
+
+        function displayReceipt(sale) {
+            const verifyUrl = `${window.location.origin}/verify.html?id=${sale.transactionId}`;
+
+            document.getElementById('receiptContent').innerHTML = `
+                <div class="receipt-header">
+                    <div class="receipt-title">🌾 REÇU DE VENTE DE COTON</div>
+                    <div class="receipt-subtitle">CottonPay ID - Bénin</div>
+                    <div class="verified-badge">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Reçu Vérifié
+                    </div>
+                </div>
+
+                <div class="amount-section">
+                    <div class="amount-label">Montant Total</div>
+                    <div class="amount-value">${sale.totalAmount.toLocaleString('fr-FR')} FCFA</div>
+                </div>
+
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">Transaction ID</div>
+                        <div class="detail-value">${sale.transactionId}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Date</div>
+                        <div class="detail-value">${sale.saleDate}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Heure</div>
+                        <div class="detail-value">${sale.saleTime}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Agriculteur</div>
+                        <div class="detail-value">${sale.farmerName}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Téléphone</div>
+                        <div class="detail-value">${sale.farmerPhone}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Poids</div>
+                        <div class="detail-value">${sale.weight} kg</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Prix unitaire</div>
+                        <div class="detail-value">${sale.unitPrice} FCFA/kg</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Référence paiement</div>
+                        <div class="detail-value">${sale.paymentReference}</div>
+                    </div>
+                </div>
+
+                <div class="qr-section">
+                    <div class="qr-title">📱 QR Code de Vérification</div>
+                    <div id="qrcode"></div>
+                    <div class="qr-instructions">
+                        Scannez ce QR code avec Inji Verify pour vérifier l'authenticité de ce reçu<br>
+                        et consulter l'historique des revenus de l'agriculteur
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <a href="/history.html" class="btn btn-secondary">← Historique</a>
+                    <a href="/dashboard.html" class="btn btn-primary">Tableau de bord</a>
+                </div>
+            `;
+
+            // Générer le QR code
+            generateQRCode(verifyUrl);
+        }
+
+        function generateQRCode(url) {
+            const qrcodeContainer = document.getElementById('qrcode');
+            new QRCode(qrcodeContainer, {
+                text: url,
+                width: 256,
+                height: 256,
+                colorDark: "#0F172A",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        }
+
+        // Charger le reçu au chargement de la page
+        loadReceipt();
+    </script>
+</body>
+</html>
