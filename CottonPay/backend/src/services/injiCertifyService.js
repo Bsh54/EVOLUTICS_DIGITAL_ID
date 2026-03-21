@@ -25,8 +25,8 @@ class InjiCertifyService {
     const { publicKey, privateKey } = crypto.generateKeyPairSync('ec', {
       namedCurve: 'P-256',
     });
-    this.privateKey = crypto.createPrivateKey(privateKey);
-    this.publicKey = crypto.createPublicKey(publicKey);
+    this.privateKey = privateKey;
+    this.publicKey = publicKey;
   }
 
   async generateProofToken(audience, nonce) {
