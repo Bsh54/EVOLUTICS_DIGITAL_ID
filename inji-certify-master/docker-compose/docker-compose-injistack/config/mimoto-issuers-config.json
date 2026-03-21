@@ -1,6 +1,43 @@
 {
   "issuers": [
     {
+      "credential_issuer": "CottonPay",
+      "issuer_id": "CottonPay",
+      "protocol": "OpenId4VCI",
+      "display": [
+        {
+          "name": "CottonPay - Reçus de Vente",
+          "logo": {
+            "url": "https://raw.githubusercontent.com/Bsh54/EVOLUTICS_DIGITAL_ID/main/Green%20and%20White%20Flat%20Illustrative%20Feeding%20Plant%20Agriculture%20Logo.png",
+            "alt_text": "CottonPay Logo"
+          },
+          "title": "CottonPay - Reçus de Vente de Coton",
+          "description": "Téléchargez vos reçus de vente de coton vérifiables",
+          "language": "fr"
+        },
+        {
+          "name": "CottonPay - Sale Receipts",
+          "logo": {
+            "url": "https://raw.githubusercontent.com/Bsh54/EVOLUTICS_DIGITAL_ID/main/Green%20and%20White%20Flat%20Illustrative%20Feeding%20Plant%20Agriculture%20Logo.png",
+            "alt_text": "CottonPay Logo"
+          },
+          "title": "CottonPay - Cotton Sale Receipts",
+          "description": "Download your verifiable cotton sale receipts",
+          "language": "en"
+        }
+      ],
+      "client_id": "wallet-demo",
+      "redirect_uri": "io.mosip.residentapp.inji://oauthredirect",
+      "token_endpoint": "http://localhost:8099/v1/mimoto/get-token/CottonPay",
+      "authorization_audience": "http://localhost:8088/v1/esignet/oauth/v2/token",
+      "proxy_token_endpoint": "http://localhost:8088/v1/esignet/oauth/v2/token",
+      "client_alias": "wallet-demo-client",
+      "qr_code_type": "EmbeddedVC",
+      "credential_issuer_host": "http://localhost:8090",
+      "enabled": "true",
+      "wellknown_endpoint": "http://localhost:8090/v1/certify/.well-known/openid-credential-issuer"
+    },
+    {
       "credential_issuer": "Farmer",
       "issuer_id": "Farmer",
       "protocol": "OpenId4VCI",
