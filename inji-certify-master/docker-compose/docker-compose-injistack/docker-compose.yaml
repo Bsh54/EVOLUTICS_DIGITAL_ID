@@ -25,7 +25,6 @@ services:
       - ./data/CERTIFY_PKCS12:/home/mosip/CERTIFY_PKCS12
       - ./config/farmer_identity_data.csv:/home/mosip/config/farmer_identity_data.csv
       # Montage du plugin Java CottonPay compilé
-      - ../../../../cottonpay-certify-plugin/target/cottonpay-certify-plugin-1.0.0.jar:/home/mosip/plugins/cottonpay-certify-plugin.jar
     networks:
       - mosip_network
     extra_hosts:
