@@ -1,9 +1,10 @@
 /**
- * Service d'intégration avec Inji Certify (Mode natif Postgres Plugin)
+ * Service d'intégration avec Inji Certify
  */
 const axios = require('axios');
 const crypto = require('crypto');
 const { Pool } = require('pg');
+const { SignJWT, exportJWK } = require('jose');
 
 const pool = new Pool({
   host: 'localhost',
@@ -17,18 +18,50 @@ class InjiCertifyService {
   constructor() {
     this.certifyBaseUrl = process.env.INJI_CERTIFY_URL || 'http://localhost:8090/v1/certify';
     this.credentialType = 'CottonPaySaleReceipt';
+    this.clientId = 'cottonpay-client';
+    
+    // Génération de la paire de clés pour la preuve (Proof of Possession)
+    const { publicKey, privateKey } = crypto.generateKeyPairSync('ec', {
+      namedCurve: 'P-256',
+    });
+    this.privateKey = crypto.createPrivateKey(privateKey);
+    this.publicKey = crypto.createPublicKey(publicKey);
+  }
+
+  async generateProofToken(audience, nonce) {
+    const jwk = await exportJWK(this.publicKey);
+    // On doit ajouter kty manuellement car la librairie jose peut loublier selon les versions
+    jwk.alg = 'ES256';
+    jwk.use = 'sig';
+
+    return await new SignJWT({
+        aud: audience,
+        iss: this.clientId, // Émetteur = client ID
+        nonce: nonce
+      })
+      .setProtectedHeader({ 
+        alg: 'ES256', 
+        typ: 'openid4vci-proof+jwt', // Le type ultra-strict exigé par Inji
+        jwk: jwk // La clé publique embarquée
+      })
+      .setIssuedAt()
+      .setExpirationTime('5m')
+      .sign(this.privateKey);
   }
 
   async generateSaleReceipt(saleData, userAccessToken) {
     try {
       console.log('🎫 Génération du Verifiable Credential pour la vente:', saleData.transactionId);
 
-      if (!userAccessToken) {
-        throw new Error('User access token is required for real Inji Certify issuance');
-      }
+      // 1. Générer le Proof Token chirurgicalement valide pour Inji
+      // L'audience d'Inji est souvent l'URL de base du serveur (sans /issuance/credential)
+      // On va utiliser certifyBaseUrl
+      const proofToken = await this.generateProofToken(
+        this.certifyBaseUrl,
+        crypto.randomBytes(16).toString('hex')
+      );
 
-      // La requête OIDC for VCIssuance standard, Inji s'occupe de lire les données
-      // avec son plugin Postgres (voir certify-cottonpay.properties)
+      // 2. Préparer la requête OpenID4VCI
       const requestBody = {
         format: 'ldp_vc',
         credential_definition: {
@@ -37,6 +70,10 @@ class InjiCertifyService {
             'https://cottonpay.io/context/v1'
           ],
           type: ['VerifiableCredential', this.credentialType]
+        },
+        proof: {
+          proof_type: 'jwt',
+          jwt: proofToken
         }
       };
 
@@ -45,8 +82,9 @@ class InjiCertifyService {
       const response = await axios.post(`${this.certifyBaseUrl}/issuance/credential`, requestBody, {
         headers: {
           'Content-Type': 'application/json'
+          // Pas d'Authorization car on utilise le mode bypass local d'Inji
         },
-        timeout: 60000
+        timeout: 60000 
       });
 
       console.log('✅ Réponse d\'Inji Certify reçue');
